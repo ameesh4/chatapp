@@ -12,7 +12,6 @@ export default function SignIn(){
 
     const handleClick = (e: any) => {
         e.preventDefault();
-        console.log(userLogin);
         if(userLogin.email === "" || userLogin.password === ""){
             setError("Please fill all the fields");
         }
@@ -24,7 +23,7 @@ export default function SignIn(){
                 return;
             }
             localStorage.setItem("token", res.data.token);
-            window.location.href = "/";
+            window.location.href = "/chats";
         })
     }
 
@@ -52,8 +51,15 @@ export default function SignIn(){
                     <form className="flex flex-col space-y-4" action='' method='POST'>
                         <input type="email" placeholder="Email" name="email" onChange={(e)=>handleChange(e)} className="p-2 border border-gray-400 rounded-md" />
                         <input type="password" placeholder="Password" name="password" onChange={(e)=>handleChange(e)} className="p-2 border border-gray-400 rounded-md" />
+                        <div className='flex' >
+                            <div className='w-full'/>
+                            <div className='w-full text-right text-sm'>
+                                <a href="">Forgot Password</a>
+                            </div>
+                        </div>
                         <button type="button" onClick={(e)=>handleClick(e)} className="border-2 border-gray-400 font-bold text-xl p-2 rounded-xl bg-white text-gray-400 hover:text-white hover:bg-gray-400">Sign In</button>
                         <p className="text-red-500 text-center">{error}</p>
+                        <a className="text-center underline" href="/signup">Don't have an account?</a>
                     </form>
                 </div>
             </div>

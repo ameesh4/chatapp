@@ -75,7 +75,7 @@ export default function SignUp(){
                         <input type="password" placeholder="Password" name="password" onChange={(e)=>handleChange(e)} className="p-2 border border-gray-400 rounded-md" />
                         <button type="button" onClick={(e)=>handleClick(e)} className="border-2 border-gray-400 font-bold text-xl p-2 rounded-xl bg-white text-gray-400 hover:text-white hover:bg-gray-400">Sign In</button>
                         <p className="text-red-500 text-center">{error}</p>
-                        <p>{success}</p>
+                        <a className="text-center underline" href="/signin">Already have an account?</a>
                     </form>
                 </div>
             </div>

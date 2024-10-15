@@ -10,8 +10,9 @@ async def signin(user: UserLogin):
     try:
         db_connect = connect()
         cursor = db_connect.cursor()
-        sql = f"SELECT * FROM users WHERE email = '{user.email}'"
-        cursor.execute(sql)
+        sql = "SELECT * FROM users WHERE email = %s"
+        val = (user.email,)
+        cursor.execute(sql, val)
         result = cursor.fetchone()
         if not result:
             raise Exception("User not found")

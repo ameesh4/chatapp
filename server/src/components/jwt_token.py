@@ -8,13 +8,14 @@ load_dotenv()
 
 
 def create_token(email: str):
-    return jwt.encode({"email": email}, os.getenv("SECRET_KEY"), algorithm="HS256")\
+    return jwt.encode({"email": email}, os.getenv("SECRET_KEY"), algorithm="HS256")
     
 
-def verify_token(token: str):
+async def verify_token(token: str):
     try:
         return jwt.decode(token, os.getenv("SECRET_KEY"), algorithms=["HS256"])
     except jwt.ExpiredSignatureError:
-        raise Exception({"error": "Token has expired"})
+        raise Exception("Token has expired")
     except jwt.InvalidTokenError:
-        raise Exception({"error": "Invalid token"})
+        raise Exception("Invalid token")
+    

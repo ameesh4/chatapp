@@ -14,3 +14,20 @@ def connect():
         )
     except mysql.connector.Error as e:
         raise e
+    
+
+def check_user(email: str)->bool:
+    try:
+        db = connect()
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+        user = cursor.fetchone()
+        if user:
+            return True
+        else:
+            return False
+    except Exception as e:
+        raise e
+    finally:
+        cursor.close()
+        db.close()
