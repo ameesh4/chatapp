@@ -2,6 +2,7 @@ import { useState } from "react";
 import { UserRegister } from "../components/models";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "@/hooks/use-toast";
 
 
 export default function SignUp(){
@@ -20,17 +21,29 @@ export default function SignUp(){
         console.log(userRegister);
         e.preventDefault();
         if (userRegister.email === "" || userRegister.password === "" || userRegister.name === "" || userRegister.age === 0){
-            setError("Please fill all the fields")
+            toast({
+                title: "Error",
+                description: "Please fill all the fields",
+                variant: "destructive"
+            })
             return;
         }
 
         axios.post("http://localhost:8000/signup", userRegister)
         .then((res: any)=> {
             if(res.data.error){
-                setError(res.data.error);
+                toast({
+                    title: "Error",
+                    description: res.data.error,
+                    variant: "destructive"
+                })
                 return;
             }
-            setSuccess(res.data.message);
+            toast({
+                title: "Success",
+                description: "User Registered",
+                variant: "success"
+            })
             navigate("/signin");
         })
     }
@@ -66,7 +79,7 @@ export default function SignUp(){
     return(
         <div>
             <div className="flex justify-center items-center min-h-screen">
-                <div className="main w-1/5 bg-white h-full p-10 rounded-md shadow-lg">
+                <div className="main w-80 bg-white h-full p-10 rounded-md shadow-lg">
                     <h1 className="text-3xl font-bold text-center m-4 text-gray-500">Sign In</h1>
                     <form className="flex flex-col space-y-4" action='' method='POST'>
                         <input type="text" placeholder="Name" name="name" onChange={(e)=>handleChange(e)} className="p-2 border border-gray-400 rounded-md" />

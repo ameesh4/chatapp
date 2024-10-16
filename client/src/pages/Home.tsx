@@ -5,10 +5,10 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { Chat, ChatReq, ChatRoomRes } from "../components/models";
+import { toast } from "@/hooks/use-toast";
 
 export default function Home(){
     const chatkey: number = useLocation().state;
-    const [error, setError] = useState<string>("");
     const [chats, setChats] = useState<Chat[]>([]);
     const [chatRoom, setChatRoom] = useState<ChatRoomRes>();
     const token = localStorage.getItem("token");
@@ -39,7 +39,11 @@ export default function Home(){
             axios.post("http://localhost:8000/get_chats", {chatid : chatkey})
             .then((res)=>{
                 if (res.data.error){
-                    setError(res.data.error);
+                    toast({
+                        title: "Error",
+                        description: res.data.error,
+                        variant: "destructive",
+                    })
                 }
                 if (chats.length !== res.data.length){
                     setChats(res.data);
@@ -50,7 +54,11 @@ export default function Home(){
         axios.post("http://localhost:8000/get_chatroom_details", {chatid: chatkey})
         .then(async (res)=>{
             if (res.data.error){
-                setError(res.data.error);
+                toast ({
+                    title: "Error",
+                    description: res.data.error,
+                    variant: "destructive",
+                })
             }
             const temp: ChatRoomRes = {
                 id: res.data.id,
@@ -69,7 +77,11 @@ export default function Home(){
         const name = await axios.post("http://localhost:8000/get_user_by_email", {email: email})
         .then((res: any)=>{
           if(res.data.error){
-            setError(res.data.error);
+            toast({
+              title: "Error",
+              description: res.data.error,
+              variant: "destructive",
+            })
             return;
           }
           return res.data.name;
@@ -80,39 +92,52 @@ export default function Home(){
     const handleKeyPress = (e: any) => {
         if(e.key === "Enter"){
             const message = (document.getElementById("message") as HTMLInputElement).value;
-            const temp: ChatReq = {
-                sender: User,
-                receiver: (chatRoom?.email1 === User) ? (chatRoom.email2) : (chatRoom?.email1),
-                message: message,
-                roomid: chatkey
-            }
-            axios.post("http://localhost:8000/message", temp)
-            .then((res)=>{
-                if (res.data.error){
-                    setError(res.data.error);
-                    return;
-                }
-                console.log(res.data.message);
-            })
-
-            axios.post("http://localhost:8000/get_chats", {chatid : chatkey})
-            .then((res)=>{
-                if (res.data.error){
-                    setError(res.data.error);
-                }
-
-                setChats(res.data);
-            })
-            setInput("");
+            sendMessage(message);
             e.preventDefault();
         }
     }
 
     const handleClick = (e: any) => {
-        e.preventDefault();
         if(e.target.name === "send" || e.target.alt === "send"){
-            console.log("Send button clicked");
+            const message = (document.getElementById("message") as HTMLInputElement).value;
+            sendMessage(message);
+            e.preventDefault();
         }
+    }
+
+    const sendMessage = (message: string)=>{
+        const temp: ChatReq = {
+            sender: User,
+            receiver: (chatRoom?.email1 === User) ? (chatRoom.email2) : (chatRoom?.email1),
+            message: message,
+            roomid: chatkey
+        }
+        axios.post("http://localhost:8000/message", temp)
+        .then((res)=>{
+            if (res.data.error){
+                toast({
+                    title: "Error",
+                    description: res.data.error,
+                    variant: "destructive",
+                })
+                return;
+            }
+            console.log(res.data.message);
+        })
+
+        axios.post("http://localhost:8000/get_chats", {chatid : chatkey})
+        .then((res)=>{
+            if (res.data.error){
+                toast({
+                    title: "Error",
+                    description: res.data.error,
+                    variant: "destructive",
+                })
+            }
+
+            setChats(res.data);
+        })
+        setInput("");
     }
 
     const handleChange = (e: any) => {
@@ -120,6 +145,7 @@ export default function Home(){
     }
 
     return (
+        <>
         <div className="flex h-screen w-screen">
             <div className="w-1/5">
                 <SideBar />
@@ -152,7 +178,7 @@ export default function Home(){
                             <div className="p-4">
                                 { chats.map((chat: Chat)=>{
                                     return (
-                                            <>
+                                        <>
                                                 { chat.sender === User ? (
                                                     <li key={chat.chatid} className="flex justify-end my-2">
                                                         <div className="text-right">
@@ -175,7 +201,7 @@ export default function Home(){
                                                 <div ref={messageEndRef} />
                                             </>
                                     )
-                                    })
+                                })
                                 }
                             </div>
                                 {/* </div>
@@ -185,5 +211,6 @@ export default function Home(){
                 }
             </div>
         </div>
+        </>
     )
 }

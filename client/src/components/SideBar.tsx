@@ -1,15 +1,16 @@
 import { createContext, useEffect, useState } from "react";
 import plus from "../assets/plus.png";
+import close from "../assets/close.png";
 import { ChatRoomReq, ChatRoomRes } from "./models";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast, useToast } from "@/hooks/use-toast";
 
 export default function SideBar() {
   const [chatRooms, setChatRooms] = useState<ChatRoomRes[]>([]);
   const [User, setUser] = useState<string>("");
   const [userName, setUserName] = useState<string>("");
   const token = localStorage.getItem("token");
-  const [error, setError] = useState<string>("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -44,12 +45,22 @@ export default function SideBar() {
       axios.post("http://localhost:8000/create_chat_room", temp)
       .then((res: any)=>{
         if(res.data.error){
-          setError(res.data.error);
-          console.log(res.data.error);
+          toast({
+            title: "Error",
+            description: res.data.error,
+            variant: "destructive",
+          })
           return;
         }
-        console.log(res.data.message);
+        toast({
+          title: "Success",
+          description: "Chat Room Created",
+        })
       })
+    }
+
+    if (e.target.id === "close" || e.target.alt === "close"){
+      document.getElementById("prompt")?.classList.add("hidden");
     }
   }
   
@@ -65,7 +76,11 @@ export default function SideBar() {
     await axios.post("http://localhost:8000/get_chat_room", {email: User})
     .then((res: any) => {
       if (res.data.error) {
-        setError(res.data.error);
+        toast({
+          title: "Error",
+          description: res.data.error,
+          variant: "destructive",
+        })
         return;
       }
       res.data.map(async (chat: any)=>{
@@ -82,12 +97,15 @@ export default function SideBar() {
     
   }
 
-
   const getNameFromEmail = async (email: string)=>{
     const name = await axios.post("http://localhost:8000/get_user_by_email", {email: email})
     .then((res: any)=>{
       if(res.data.error){
-        setError(res.data.error);
+        toast({
+          title: "Error",
+          description: res.data.error,
+          variant: "destructive",
+        })
         return;
       }
       return res.data.name;
@@ -98,15 +116,18 @@ export default function SideBar() {
 
   return (
     <div>
-      <div id="prompt" className="absolute flex w-screen h-screen bg-gray-950/20 justify-center items-center hidden">
-        <div className="p-4 w-96 bg-white rounded-md">
-          <h1 className="text-gray-600 text-lg mb-2">Enter email of the user you want to text:</h1>
+      <div id="prompt" className="absolute flex w-screen h-screen bg-gray-950/20 hidden">
+        <div className="p-4 w-80 h-max bg-white rounded-md">
+          <div className="flex">
+            <h1 className="text-gray-600 text-lg mb-2">Enter email of the user you want to text:</h1>
+            <button id="close" onClick={(e)=>handleClick(e)} className="h-6 p-2"><img onClick={(e)=>handleClick(e)} className="w-3" src={close} alt="close" /></button>
+          </div>
           <div className="flex">
             <input
               name="user2"
               type="text"
               placeholder="Enter Email..."
-              className="p-2 border-2 w-full border-gray-500 rounded-l-md"
+              className="p-2 border-2 w-full border-gray-500 bg-white rounded-l-md"
             />
             <button 
             name="go"
@@ -131,7 +152,6 @@ export default function SideBar() {
               <li key={chat.id} onClick={()=>handleChatRoomClick(chat.id)} className="listItems">
                 <button className="p-4 border-b-2 text-left w-full hover:bg-gray-200">
                 <p className="font-bold text-2xl">{chat.user2 == userName ? (chat.user1) : (chat.user2)}</p>
-                <p className="opacity-80">User1: hello bro</p>
                 </button>
               </li>
           );
