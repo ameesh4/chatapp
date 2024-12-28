@@ -1,0 +1,12 @@
+version: '3.4'
+
+services:
+  authentication:
+    image: authentication
+    build:
+      context: client
+      dockerfile: ./Dockerfile
+    environment:
+      NODE_ENV: production
+    ports:
+      - 5173:5173
